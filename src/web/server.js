@@ -2,12 +2,60 @@ import express from 'express';
 import { marked } from 'marked';
 import * as storage from '../storage.js';
 
+// Global state to track last known content for emergency saves
+let lastKnownState = null;
+
+// Setup graceful shutdown handlers
+function setupGracefulShutdown(serverInstance, callback) {
+  const cleanup = async (signal) => {
+    console.log(`\n  Received ${signal}, saving and shutting down...`);
+
+    // Save last known state if available
+    if (lastKnownState && lastKnownState.thema && lastKnownState.content) {
+      try {
+        const datum = new Date().toLocaleDateString('de-DE');
+        const fullContent = `---
+Oberkategorie: ${lastKnownState.oberkategorie}
+Unterkategorie: ${lastKnownState.unterkategorie}
+Thema: ${lastKnownState.thema}
+Erstellt: ${datum}
+---
+
+${lastKnownState.content}`;
+
+        storage.createOberkategorie(lastKnownState.oberkategorie);
+        storage.createUnterkategorie(lastKnownState.oberkategorie, lastKnownState.unterkategorie);
+        storage.saveNote(lastKnownState.oberkategorie, lastKnownState.unterkategorie, lastKnownState.thema, fullContent);
+        console.log(`  Auto-saved: ${lastKnownState.thema}`);
+      } catch (e) {
+        console.error('  Failed to save on exit:', e.message);
+      }
+    }
+
+    if (serverInstance) {
+      serverInstance.close();
+    }
+    if (callback) {
+      callback({ saved: !!lastKnownState?.thema, thema: lastKnownState?.thema || '' });
+    }
+    process.exit(0);
+  };
+
+  // Handle various termination signals
+  process.on('SIGINT', () => cleanup('SIGINT'));
+  process.on('SIGTERM', () => cleanup('SIGTERM'));
+  process.on('SIGHUP', () => cleanup('SIGHUP'));
+}
+
 export function startServer(config, callback) {
   const app = express();
   app.use(express.json());
 
   let serverInstance = null;
   const { oberkategorie, unterkategorie, port = 3333 } = config;
+
+  // Reset last known state for this session
+  lastKnownState = { oberkategorie, unterkategorie, thema: '', content: '' };
 
   app.get('/', (req, res) => {
     res.send(getEditorHTML(oberkategorie, unterkategorie));
@@ -56,9 +104,12 @@ ${content}`;
     }, 200);
   });
 
-  // Auto-Save Endpunkt
+  // Auto-Save Endpunkt - also updates lastKnownState for emergency saves
   app.post('/autosave', (req, res) => {
     const { oberkategorie, unterkategorie, thema, content } = req.body;
+
+    // Always update lastKnownState for emergency saves on process termination
+    lastKnownState = { oberkategorie, unterkategorie, thema: thema?.trim() || '', content: content || '' };
 
     if (!thema || !thema.trim()) {
       return res.json({ success: false, reason: 'no_thema' });
@@ -81,7 +132,18 @@ ${content}`;
     res.json({ success: true, savedAt: new Date().toLocaleTimeString('de-DE') });
   });
 
+  // Heartbeat endpoint to keep track of current state
+  app.post('/heartbeat', (req, res) => {
+    const { oberkategorie, unterkategorie, thema, content } = req.body;
+    lastKnownState = { oberkategorie, unterkategorie, thema: thema?.trim() || '', content: content || '' };
+    res.json({ success: true });
+  });
+
   serverInstance = app.listen(port);
+
+  // Setup graceful shutdown handlers
+  setupGracefulShutdown(serverInstance, callback);
+
   return { port, close: () => serverInstance.close() };
 }
 
@@ -94,6 +156,9 @@ export function startEditServer(config, callback) {
 
   // Extrahiere nur den Inhalt ohne YAML Frontmatter
   const contentWithoutFrontmatter = content ? content.replace(/^---[\s\S]*?---\n?/, '').trim() : '';
+
+  // Initialize last known state with existing content
+  lastKnownState = { oberkategorie, unterkategorie, thema, content: contentWithoutFrontmatter };
 
   app.get('/', (req, res) => {
     res.send(getEditHTML(oberkategorie, unterkategorie, thema, contentWithoutFrontmatter));
@@ -143,6 +208,9 @@ ${content}`;
   app.post('/autosave', (req, res) => {
     const { oberkategorie, unterkategorie, thema, content } = req.body;
 
+    // Always update lastKnownState for emergency saves
+    lastKnownState = { oberkategorie, unterkategorie, thema: thema?.trim() || '', content: content || '' };
+
     if (!thema || !thema.trim()) {
       return res.json({ success: false, reason: 'no_thema' });
     }
@@ -162,7 +230,18 @@ ${content}`;
     res.json({ success: true, savedAt: new Date().toLocaleTimeString('de-DE') });
   });
 
+  // Heartbeat endpoint to keep track of current state
+  app.post('/heartbeat', (req, res) => {
+    const { oberkategorie, unterkategorie, thema, content } = req.body;
+    lastKnownState = { oberkategorie, unterkategorie, thema: thema?.trim() || '', content: content || '' };
+    res.json({ success: true });
+  });
+
   serverInstance = app.listen(port);
+
+  // Setup graceful shutdown handlers
+  setupGracefulShutdown(serverInstance, callback);
+
   return { port, close: () => serverInstance.close() };
 }
 
@@ -989,13 +1068,43 @@ Backlinks zu anderen Notes:
       autoSaveTimer = setTimeout(autoSave, 3000);
     });
 
-    // Warnung beim Schliessen
+    // Warnung beim Schliessen - save immediately
     window.addEventListener('beforeunload', (e) => {
       if (hasUnsavedChanges && themaInput.value.trim()) {
+        // Try to save synchronously before page unloads
+        navigator.sendBeacon('/autosave', JSON.stringify({
+          oberkategorie: document.getElementById('oberkategorie').value,
+          unterkategorie: document.getElementById('unterkategorie').value,
+          thema: themaInput.value.trim(),
+          content: editor.value
+        }));
         e.preventDefault();
         e.returnValue = '';
       }
     });
+
+    // Save when tab becomes hidden (user switches tabs/apps)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && themaInput.value.trim() && editor.value) {
+        autoSave();
+      }
+    });
+
+    // Heartbeat - send current state to server every 5 seconds for emergency saves
+    setInterval(() => {
+      if (themaInput.value.trim() || editor.value) {
+        fetch('/heartbeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            oberkategorie: document.getElementById('oberkategorie').value,
+            unterkategorie: document.getElementById('unterkategorie').value,
+            thema: themaInput.value.trim(),
+            content: editor.value
+          })
+        }).catch(() => {});
+      }
+    }, 5000);
 
     // Theme Toggle
     function toggleTheme() {
@@ -1692,8 +1801,41 @@ function getEditHTML(oberkategorie, unterkategorie, thema, content) {
     });
 
     window.addEventListener('beforeunload', (e) => {
-      if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
+      if (hasUnsavedChanges && themaInput.value.trim()) {
+        // Try to save synchronously before page unloads
+        navigator.sendBeacon('/autosave', JSON.stringify({
+          oberkategorie: document.getElementById('oberkategorie').value,
+          unterkategorie: document.getElementById('unterkategorie').value,
+          thema: themaInput.value.trim(),
+          content: editor.value
+        }));
+        e.preventDefault();
+        e.returnValue = '';
+      }
     });
+
+    // Save when tab becomes hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && themaInput.value.trim() && editor.value) {
+        autoSave();
+      }
+    });
+
+    // Heartbeat - send current state to server every 5 seconds
+    setInterval(() => {
+      if (themaInput.value.trim() || editor.value) {
+        fetch('/heartbeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            oberkategorie: document.getElementById('oberkategorie').value,
+            unterkategorie: document.getElementById('unterkategorie').value,
+            thema: themaInput.value.trim(),
+            content: editor.value
+          })
+        }).catch(() => {});
+      }
+    }, 5000);
 
     function toggleTheme() {
       const html = document.documentElement;
