@@ -22,3 +22,6 @@ npm-debug.log*
 # Temp files
 *.tmp
 *.temp
+
+# Build output (deployed via GitHub Actions)
+/docs/
