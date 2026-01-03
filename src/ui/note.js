@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import open from 'open';
 import * as storage from '../storage.js';
 import { startServer, startEditServer } from '../web/server.js';
+import { findAvailablePort } from '../utils.js';
 
 function clear() {
   console.clear();
@@ -16,28 +17,6 @@ function formatChoice(name, isNew = false) {
     return chalk.green('  + ') + chalk.green(name);
   }
   return chalk.cyan('  → ') + chalk.bold(name);
-}
-
-function getAllNotes() {
-  const allNotes = [];
-  const oberkategorien = storage.getOberkategorien();
-
-  for (const ober of oberkategorien) {
-    const unterkategorien = storage.getUnterkategorien(ober);
-    for (const unter of unterkategorien) {
-      const notes = storage.getNotes(ober, unter);
-      for (const note of notes) {
-        allNotes.push({
-          oberkategorie: ober,
-          unterkategorie: unter,
-          thema: note,
-          fullPath: `${ober} / ${unter} / ${note}`
-        });
-      }
-    }
-  }
-
-  return allNotes;
 }
 
 export async function noteMenu() {
@@ -179,7 +158,7 @@ async function openNewNoteInCategory(oberkategorie, unterkategorie) {
   console.log(chalk.gray('  Browser wird geoeffnet...'));
   console.log('');
 
-  const port = 3333 + Math.floor(Math.random() * 100);
+  const port = await findAvailablePort(3333);
 
   return new Promise((resolve) => {
     startServer({ oberkategorie, unterkategorie, port }, (result) => {
@@ -286,7 +265,7 @@ async function openNoteForEditing(note) {
   console.log(chalk.gray('  Browser wird geoeffnet...'));
   console.log('');
 
-  const port = 3333 + Math.floor(Math.random() * 100);
+  const port = await findAvailablePort(3333);
   const existingContent = storage.readNote(note.oberkategorie, note.unterkategorie, note.thema);
 
   return new Promise((resolve) => {
@@ -452,7 +431,7 @@ async function createNewNote() {
   console.log(chalk.gray('  Browser wird geoeffnet...'));
   console.log('');
 
-  const port = 3333 + Math.floor(Math.random() * 100);
+  const port = await findAvailablePort(3333);
 
   return new Promise((resolve) => {
     startServer({ oberkategorie, unterkategorie, port }, (result) => {

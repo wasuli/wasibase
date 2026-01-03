@@ -1,13 +1,14 @@
 import chalk from 'chalk';
 import open from 'open';
 import { startSearchServer } from '../web/server.js';
+import { findAvailablePort } from '../utils.js';
 
 export async function searchMenu() {
   console.clear();
   console.log(chalk.cyan.bold('\n  WASIBASE SEARCH\n'));
   console.log(chalk.gray('  Browser oeffnet sich...\n'));
 
-  const port = 3334 + Math.floor(Math.random() * 100);
+  const port = await findAvailablePort(3334);
 
   return new Promise((resolve) => {
     startSearchServer({ port }, () => {

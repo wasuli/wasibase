@@ -1,29 +1,37 @@
 {
   "name": "wasibase",
   "version": "1.0.0",
-  "description": "Second Brain - Notizen mit Backlinks",
+  "description": "Second Brain - Terminal-basiertes Notizen-System mit Backlinks",
   "main": "src/index.js",
   "type": "module",
   "bin": {
     "wasibase": "./bin/wasibase.js"
   },
   "scripts": {
-    "start": "node bin/wasibase.js"
+    "start": "node bin/wasibase.js",
+    "note": "node bin/wasibase.js note",
+    "search": "node bin/wasibase.js search",
+    "graph": "node bin/wasibase.js graph",
+    "backup": "node bin/wasibase.js backup",
+    "sync": "node bin/wasibase.js sync"
   },
   "keywords": [
     "notes",
     "second-brain",
-    "backlinks"
+    "backlinks",
+    "markdown",
+    "cli"
   ],
   "author": "Wasili",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^5.6.2",
     "express": "^5.2.1",
     "inquirer": "^9.3.8",
-    "js-yaml": "^4.1.1",
     "marked": "^17.0.1",
-    "open": "^11.0.0",
-    "ora": "^8.2.0"
+    "open": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
