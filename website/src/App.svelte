@@ -8,6 +8,7 @@
   import Footer from './lib/Footer.svelte';
 </script>
 
+<div class="noise"></div>
 <Nav />
 <main>
   <Hero />
@@ -19,7 +20,7 @@
 </main>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   :global(*) {
     margin: 0;
@@ -32,70 +33,80 @@
   }
 
   :global(body) {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #050510;
-    color: #e2e8f0;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #030308;
+    color: #e4e4e7;
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   :global(:root) {
-    /* Dark blue base */
-    --bg: #050510;
-    --bg-card: rgba(15, 23, 42, 0.6);
-    --bg-elevated: rgba(30, 41, 59, 0.5);
+    /* Deep space base */
+    --bg: #030308;
+    --bg-elevated: rgba(12, 12, 20, 0.8);
+    --bg-card: rgba(16, 16, 28, 0.6);
 
-    /* Glassmorphism */
-    --glass: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-hover: rgba(255, 255, 255, 0.06);
+    /* Glass effects */
+    --glass: rgba(255, 255, 255, 0.02);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.04);
 
     /* Borders */
-    --border: rgba(148, 163, 184, 0.1);
-    --border-hover: rgba(148, 163, 184, 0.2);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
 
-    /* Text */
-    --text: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    /* Text hierarchy */
+    --text: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
 
-    /* Blue accent palette */
-    --accent: #3b82f6;
-    --accent-light: #60a5fa;
-    --accent-dark: #2563eb;
-    --accent-glow: rgba(59, 130, 246, 0.4);
-
-    /* Secondary accents */
-    --cyan: #06b6d4;
-    --purple: #8b5cf6;
-    --emerald: #10b981;
+    /* Signature colors - Electric cyan + violet */
+    --accent: #22d3ee;
+    --accent-secondary: #a855f7;
+    --accent-tertiary: #3b82f6;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-    --gradient-glow: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+    --gradient-primary: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+    --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #22d3ee 100%);
+    --gradient-text: linear-gradient(135deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+    --gradient-glow: radial-gradient(ellipse at center, rgba(34, 211, 238, 0.12) 0%, transparent 70%);
+
+    /* Shadows */
+    --shadow-glow: 0 0 60px -12px rgba(34, 211, 238, 0.4);
   }
 
   :global(::selection) {
-    background: rgba(59, 130, 246, 0.3);
+    background: rgba(34, 211, 238, 0.25);
     color: #fff;
   }
 
   :global(::-webkit-scrollbar) {
-    width: 8px;
+    width: 6px;
   }
 
   :global(::-webkit-scrollbar-track) {
-    background: var(--bg);
+    background: transparent;
   }
 
   :global(::-webkit-scrollbar-thumb) {
-    background: var(--border);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
   }
 
   :global(::-webkit-scrollbar-thumb:hover) {
-    background: var(--border-hover);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Noise overlay for texture */
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   }
 
   main {
@@ -103,17 +114,31 @@
     position: relative;
   }
 
-  /* Global glass card utility */
+  /* Global card styles */
   :global(.glass-card) {
     background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   :global(.glass-card:hover) {
     background: var(--glass-hover);
     border-color: var(--border-hover);
+  }
+
+  /* Section utility */
+  :global(.section) {
+    position: relative;
+    padding: 160px 24px;
+  }
+
+  :global(.section-container) {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 </style>
