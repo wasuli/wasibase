@@ -17,32 +17,46 @@
 </main>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
   :global(*) {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
 
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
   :global(body) {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: #0a0a0a;
     color: #e5e5e5;
     line-height: 1.6;
+    overflow-x: hidden;
   }
 
   :global(:root) {
     --bg: #0a0a0a;
-    --bg-card: #141414;
-    --bg-elevated: #1a1a1a;
-    --border: #262626;
+    --bg-card: #0f0f0f;
+    --bg-elevated: #141414;
+    --border: #1a1a1a;
+    --border-hover: #333;
     --text: #e5e5e5;
-    --text-muted: #888;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --accent-green: #10b981;
-    --accent-amber: #f59e0b;
+    --text-muted: #666;
+    --accent: #00ff88;
+    --accent-dim: rgba(0, 255, 136, 0.1);
+    --accent-blue: #00d4ff;
     --accent-purple: #8b5cf6;
-    --accent-red: #ef4444;
+    --accent-amber: #fbbf24;
+    --accent-pink: #f472b6;
+    --accent-orange: #fb923c;
+  }
+
+  :global(::selection) {
+    background: rgba(0, 255, 136, 0.3);
+    color: #fff;
   }
 
   main {

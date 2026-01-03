@@ -1,208 +1,377 @@
 <script>
-  const steps = [
-    {
-      title: 'Node.js installieren',
-      desc: 'Du brauchst Node.js (Version 18+). Download von der offiziellen Seite:',
-      code: null,
-      link: { url: 'https://nodejs.org', text: 'nodejs.org' }
-    },
-    {
-      title: 'Wasibase installieren',
-      desc: 'Oeffne das Terminal und installiere wasibase global:',
-      code: 'npm install -g wasibase',
-      link: null
-    },
-    {
-      title: 'Fertig!',
-      desc: 'Jetzt kannst du wasibase von ueberall starten:',
-      code: 'wasibase',
-      link: null
-    }
-  ];
+  let copied = {};
 
   const commands = [
-    { cmd: 'wasibase', desc: 'Kategorien und Notes verwalten' },
-    { cmd: 'wasibase note', desc: 'Neue Note erstellen oder bearbeiten' },
-    { cmd: 'wasibase search', desc: 'Notes durchsuchen' },
-    { cmd: 'wasibase graph', desc: 'Wissens-Graph anzeigen' },
-    { cmd: 'wasibase backup', desc: 'Backup erstellen und wiederherstellen' },
-    { cmd: 'wasibase sync', desc: 'Mit Cloud synchronisieren' }
+    { cmd: 'wasibase', desc: 'Open main menu & manage categories' },
+    { cmd: 'wasibase note', desc: 'Create or edit notes' },
+    { cmd: 'wasibase search', desc: 'Search through all notes' },
+    { cmd: 'wasibase graph', desc: 'Visualize knowledge graph' },
+    { cmd: 'wasibase backup', desc: 'Create and restore backups' },
+    { cmd: 'wasibase sync', desc: 'Sync with cloud storage' }
   ];
+
+  async function copyCommand(cmd, key) {
+    await navigator.clipboard.writeText(cmd);
+    copied[key] = true;
+    setTimeout(() => copied[key] = false, 2000);
+  }
 </script>
 
-<section class="installation">
+<section class="installation" id="install">
   <div class="container">
-    <h2 class="section-title">Installation</h2>
-
-    <div class="steps">
-      {#each steps as step, i}
-        <div class="step">
-          <div class="step-number">{i + 1}</div>
-          <div class="step-content">
-            <h4>{step.title}</h4>
-            <p>{step.desc}</p>
-            {#if step.code}
-              <div class="code-block">{step.code}</div>
-            {/if}
-            {#if step.link}
-              <a href={step.link.url} class="link-btn" target="_blank" rel="noopener">
-                {step.link.text}
-              </a>
-            {/if}
-          </div>
-        </div>
-      {/each}
+    <div class="section-header">
+      <span class="overline">Quick Start</span>
+      <h2 class="section-title">Up and running in seconds</h2>
     </div>
 
-    <h3 class="commands-title">Befehle</h3>
-    <div class="commands">
-      {#each commands as cmd}
-        <div class="command">
-          <span class="command-name">{cmd.cmd}</span>
-          <span class="command-desc">{cmd.desc}</span>
+    <div class="install-steps">
+      <div class="step">
+        <div class="step-badge">
+          <span class="step-number">1</span>
         </div>
-      {/each}
+        <div class="step-content">
+          <h3>Prerequisites</h3>
+          <p>Make sure you have Node.js 18+ installed</p>
+          <a href="https://nodejs.org" class="node-link" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1.85c-.27 0-.55.07-.78.2l-7.44 4.3c-.48.28-.78.8-.78 1.36v8.58c0 .56.3 1.08.78 1.36l1.95 1.12c.95.46 1.27.46 1.71.46 1.4 0 2.21-.85 2.21-2.33V8.44c0-.12-.1-.22-.22-.22H8.5c-.13 0-.23.1-.23.22v8.47c0 .66-.68 1.31-1.77.76L4.45 16.5a.26.26 0 0 1-.12-.21V7.71c0-.09.04-.17.12-.21l7.44-4.29c.08-.04.18-.04.25 0l7.44 4.29c.08.04.12.12.12.21v8.58c0 .09-.04.17-.12.21l-7.44 4.29c-.07.04-.16.04-.24 0l-1.92-1.14c-.08-.04-.17-.05-.26-.02-.72.26-.86.29-1.54.44-.17.04-.42.11.1.3l2.5 1.48c.23.14.5.2.77.2.28 0 .54-.06.77-.2l7.44-4.29c.48-.28.78-.8.78-1.36V7.71c0-.56-.3-1.08-.78-1.36l-7.44-4.3c-.23-.13-.5-.2-.78-.2M14 8c-2.12 0-3.39.89-3.39 2.39 0 1.61 1.26 2.06 3.29 2.25 2.43.25 2.62.6 2.62 1.09 0 .83-.67 1.18-2.23 1.18-1.98 0-2.4-.49-2.55-1.47a.23.23 0 0 0-.22-.18h-.96c-.12 0-.21.09-.21.22 0 1.24.68 2.74 3.94 2.74 2.35 0 3.7-.93 3.7-2.55 0-1.61-1.08-2.03-3.37-2.34-2.31-.3-2.54-.46-2.54-1 0-.45.2-1.05 1.91-1.05 1.53 0 2.09.33 2.32 1.36.02.1.11.18.22.18h.97c.06 0 .11-.02.15-.07.04-.04.06-.09.05-.14-.14-1.67-1.25-2.44-3.72-2.44"/>
+            </svg>
+            Download Node.js
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 17L17 7M17 7H7M17 7V17"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="step-connector"></div>
+
+      <div class="step">
+        <div class="step-badge">
+          <span class="step-number">2</span>
+        </div>
+        <div class="step-content">
+          <h3>Install globally</h3>
+          <p>Run this command in your terminal</p>
+          <div class="code-box">
+            <code>npm install -g wasibase</code>
+            <button class="copy-btn" on:click={() => copyCommand('npm install -g wasibase', 'install')}>
+              {#if copied.install}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              {:else}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              {/if}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-connector"></div>
+
+      <div class="step">
+        <div class="step-badge done">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>Ready to go!</h3>
+          <p>Launch wasibase from anywhere</p>
+          <div class="code-box">
+            <code>wasibase</code>
+            <button class="copy-btn" on:click={() => copyCommand('wasibase', 'launch')}>
+              {#if copied.launch}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              {:else}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              {/if}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="commands-section">
+      <h3 class="commands-title">All Commands</h3>
+      <div class="commands-grid">
+        {#each commands as { cmd, desc }, i}
+          <div class="command-card" style="animation-delay: {i * 0.05}s">
+            <div class="command-main">
+              <code class="command-code">{cmd}</code>
+              <button class="copy-mini" on:click={() => copyCommand(cmd, cmd)}>
+                {#if copied[cmd]}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                {:else}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                {/if}
+              </button>
+            </div>
+            <span class="command-desc">{desc}</span>
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
 </section>
 
 <style>
   .installation {
-    padding: 80px 0;
-    border-top: 1px solid var(--border);
+    padding: 120px 24px;
+    position: relative;
   }
 
   .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 0 24px;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 70px;
+  }
+
+  .overline {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #00ff88;
+    margin-bottom: 16px;
   }
 
   .section-title {
-    font-size: 32px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(32px, 5vw, 44px);
     font-weight: 700;
-    text-align: center;
-    margin-bottom: 48px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
   }
 
-  .steps {
+  .install-steps {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    margin-bottom: 60px;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 80px;
   }
 
   .step {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
+    gap: 24px;
+    max-width: 500px;
+    width: 100%;
   }
 
-  .step-number {
-    width: 40px;
-    height: 40px;
-    background: var(--accent);
-    border-radius: 50%;
+  .step-badge {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 18px;
     flex-shrink: 0;
   }
 
-  .step-content h4 {
+  .step-badge.done {
+    background: linear-gradient(135deg, #00ff88 0%, #10b981 100%);
+    color: #000;
+  }
+
+  .step-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .step-connector {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(180deg, #00ff88 0%, rgba(0, 255, 136, 0.2) 100%);
+    margin-left: 23px;
+  }
+
+  .step-content {
+    padding-top: 4px;
+  }
+
+  .step-content h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 8px;
+    color: #fff;
+    margin-bottom: 6px;
   }
 
   .step-content p {
     font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
+    color: #666;
+    margin-bottom: 14px;
   }
 
-  .code-block {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: 'SF Mono', Monaco, monospace;
+  .node-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 10px;
+    color: #00ff88;
     font-size: 14px;
-    color: var(--accent-green);
-  }
-
-  .link-btn {
-    display: inline-block;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    padding: 10px 20px;
-    border-radius: 8px;
+    font-weight: 500;
     text-decoration: none;
-    font-size: 14px;
-    transition: all 0.15s;
+    transition: all 0.2s;
   }
 
-  .link-btn:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
+  .node-link:hover {
+    background: rgba(0, 255, 136, 0.15);
+    border-color: rgba(0, 255, 136, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .code-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+  }
+
+  .code-box code {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #00ff88;
+  }
+
+  .copy-btn {
+    background: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-btn:hover {
+    background: #00ff88;
+    color: #000;
+  }
+
+  .commands-section {
+    padding-top: 40px;
+    border-top: 1px solid #1a1a1a;
   }
 
   .commands-title {
-    font-size: 24px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
+    color: #fff;
   }
 
-  .commands {
+  .commands-grid {
     display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  .command {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+  .command-card {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
     border-radius: 12px;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    padding: 16px 18px;
+    transition: all 0.2s;
+    animation: fadeInUp 0.4s ease both;
   }
 
-  .command-name {
-    font-family: 'SF Mono', Monaco, monospace;
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .command-card:hover {
+    border-color: #333;
+    transform: translateY(-2px);
+  }
+
+  .command-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .command-code {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
-    color: var(--accent-amber);
-    min-width: 180px;
+    color: #fbbf24;
     font-weight: 500;
   }
 
-  .command-desc {
-    font-size: 14px;
-    color: var(--text-muted);
+  .copy-mini {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    color: #444;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
   }
 
-  @media (max-width: 600px) {
+  .copy-mini:hover {
+    color: #00ff88;
+  }
+
+  .command-desc {
+    font-size: 13px;
+    color: #555;
+  }
+
+  @media (max-width: 640px) {
+    .installation {
+      padding: 80px 24px;
+    }
+
     .step {
       flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
     }
 
-    .command {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
+    .step-connector {
+      margin-left: 0;
     }
 
-    .command-name {
-      min-width: auto;
+    .commands-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

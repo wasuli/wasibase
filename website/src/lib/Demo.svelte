@@ -6,6 +6,7 @@
   let selectedUnter = '';
   let typedCommand = '';
   let isTyping = false;
+  let showCursor = true;
 
   const data = {
     'Mathematik': {
@@ -52,106 +53,187 @@
     typedCommand = '';
     for (let i = 0; i < cmd.length; i++) {
       typedCommand += cmd[i];
-      await new Promise(r => setTimeout(r, 50 + Math.random() * 30));
+      await new Promise(r => setTimeout(r, 60 + Math.random() * 40));
     }
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 500));
     isTyping = false;
   }
 
   onMount(() => {
     typeCommand('wasibase');
+    const cursorInterval = setInterval(() => showCursor = !showCursor, 530);
+    return () => clearInterval(cursorInterval);
   });
 </script>
 
-<section class="demo">
+<section class="demo" id="demo">
   <div class="container">
-    <h2 class="section-title">Probier es aus</h2>
-    <p class="section-subtitle">Interaktive Demo - klick dich durch</p>
+    <div class="section-header">
+      <span class="overline">Interactive Demo</span>
+      <h2 class="section-title">See it in action</h2>
+      <p class="section-desc">Click through the demo to explore how wasibase works</p>
+    </div>
 
-    <div class="terminal">
-      <div class="terminal-header">
-        <div class="terminal-buttons">
-          <span class="btn-close"></span>
-          <span class="btn-min"></span>
-          <span class="btn-max"></span>
+    <div class="terminal-wrapper">
+      <div class="terminal-glow"></div>
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="terminal-title">wasibase ~ demo</span>
+          <div class="terminal-actions">
+            {#if currentView !== 'main'}
+              <button class="reset-btn" on:click={reset}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                Reset
+              </button>
+            {/if}
+          </div>
         </div>
-        <span class="terminal-title">wasibase</span>
-      </div>
 
-      <div class="terminal-body">
-        <div class="command-line">
-          <span class="prompt">$</span>
-          <span class="command">{typedCommand}</span>
-          {#if isTyping}
-            <span class="cursor">|</span>
+        <div class="terminal-body">
+          <div class="command-line">
+            <span class="prompt">$</span>
+            <span class="command">{typedCommand}</span>
+            {#if isTyping && showCursor}
+              <span class="cursor"></span>
+            {/if}
+          </div>
+
+          {#if !isTyping}
+            <div class="output">
+              <div class="header-bar">
+                <span class="logo">WASIBASE</span>
+                <span class="version">v1.0.0</span>
+              </div>
+
+              {#if currentView === 'main'}
+                <div class="menu" style="animation-delay: 0.1s">
+                  <div class="menu-label">Categories</div>
+                  {#each Object.keys(data) as ober, i}
+                    <button class="menu-item" on:click={() => selectOber(ober)} style="animation-delay: {0.1 + i * 0.05}s">
+                      <span class="item-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                      </span>
+                      <span class="item-name">{ober}</span>
+                      <span class="item-count">{Object.keys(data[ober]).length}</span>
+                      <span class="item-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </span>
+                    </button>
+                  {/each}
+                  <div class="separator"></div>
+                  <div class="menu-item new">
+                    <span class="item-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </span>
+                    <span class="item-name">New Category</span>
+                  </div>
+                </div>
+
+              {:else if currentView === 'unter'}
+                <div class="breadcrumb">
+                  <button class="crumb" on:click={reset}>Home</button>
+                  <span class="crumb-sep">/</span>
+                  <span class="crumb active">{selectedOber}</span>
+                </div>
+                <div class="menu">
+                  <div class="menu-label">Subcategories</div>
+                  {#each Object.keys(data[selectedOber]) as unter, i}
+                    <button class="menu-item" on:click={() => selectUnter(unter)} style="animation-delay: {i * 0.05}s">
+                      <span class="item-icon sub">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                      </span>
+                      <span class="item-name">{unter}</span>
+                      <span class="item-count">{data[selectedOber][unter].length}</span>
+                      <span class="item-arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </span>
+                    </button>
+                  {/each}
+                  <div class="separator"></div>
+                  <button class="menu-item back" on:click={goBack}>
+                    <span class="item-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                    </span>
+                    <span class="item-name">Back</span>
+                  </button>
+                </div>
+
+              {:else if currentView === 'notes'}
+                <div class="breadcrumb">
+                  <button class="crumb" on:click={reset}>Home</button>
+                  <span class="crumb-sep">/</span>
+                  <button class="crumb" on:click={() => { currentView = 'unter'; selectedUnter = ''; }}>{selectedOber}</button>
+                  <span class="crumb-sep">/</span>
+                  <span class="crumb active">{selectedUnter}</span>
+                </div>
+                <div class="menu">
+                  <div class="menu-label">Notes</div>
+                  {#each data[selectedOber][selectedUnter] as note, i}
+                    <div class="menu-item note" style="animation-delay: {i * 0.05}s">
+                      <span class="item-icon note-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                      </span>
+                      <span class="item-name">{note}</span>
+                      <span class="item-ext">.md</span>
+                    </div>
+                  {/each}
+                  <div class="separator"></div>
+                  <div class="menu-item new">
+                    <span class="item-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </span>
+                    <span class="item-name">New Note</span>
+                  </div>
+                  <button class="menu-item back" on:click={goBack}>
+                    <span class="item-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                    </span>
+                    <span class="item-name">Back</span>
+                  </button>
+                </div>
+              {/if}
+            </div>
           {/if}
         </div>
 
-        {#if !isTyping}
-          <div class="output">
-            <div class="header">WASIBASE</div>
-
-            {#if currentView === 'main'}
-              <div class="menu">
-                {#each Object.keys(data) as ober}
-                  <button class="menu-item" on:click={() => selectOber(ober)}>
-                    <span class="arrow">→</span>
-                    <span class="name">{ober}</span>
-                    <span class="count">({Object.keys(data[ober]).length} Unter)</span>
-                  </button>
-                {/each}
-                <div class="separator"></div>
-                <div class="menu-item new">
-                  <span class="plus">+</span>
-                  <span>Neue Oberkategorie</span>
-                </div>
-              </div>
-
-            {:else if currentView === 'unter'}
-              <div class="breadcrumb">Oberkategorie: <strong>{selectedOber}</strong></div>
-              <div class="menu">
-                {#each Object.keys(data[selectedOber]) as unter}
-                  <button class="menu-item" on:click={() => selectUnter(unter)}>
-                    <span class="arrow">→</span>
-                    <span class="name">{unter}</span>
-                    <span class="count">({data[selectedOber][unter].length} Notes)</span>
-                  </button>
-                {/each}
-                <div class="separator"></div>
-                <button class="menu-item back" on:click={goBack}>
-                  <span class="arrow">&lt;</span>
-                  <span>Zurueck</span>
-                </button>
-              </div>
-
-            {:else if currentView === 'notes'}
-              <div class="breadcrumb">Pfad: <strong>{selectedOber} / {selectedUnter}</strong></div>
-              <div class="menu">
-                {#each data[selectedOber][selectedUnter] as note}
-                  <div class="menu-item note">
-                    <span class="arrow">→</span>
-                    <span class="name">{note}</span>
-                  </div>
-                {/each}
-                <div class="separator"></div>
-                <div class="menu-item new">
-                  <span class="plus">+</span>
-                  <span>Neue Note erstellen</span>
-                </div>
-                <button class="menu-item back" on:click={goBack}>
-                  <span class="arrow">&lt;</span>
-                  <span>Zurueck</span>
-                </button>
-              </div>
-            {/if}
-
-            <div class="hint">
-              {#if currentView !== 'main'}
-                <button class="reset-btn" on:click={reset}>Reset Demo</button>
-              {/if}
-            </div>
-          </div>
-        {/if}
+        <div class="terminal-footer">
+          <span class="footer-hint">
+            <kbd>↑</kbd><kbd>↓</kbd> Navigate
+            <kbd>Enter</kbd> Select
+            <kbd>Esc</kbd> Back
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -159,98 +241,165 @@
 
 <style>
   .demo {
-    padding: 80px 0;
-    background: var(--bg-card);
+    padding: 120px 24px;
+    position: relative;
+    background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%);
   }
 
   .container {
-    max-width: 700px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 0 24px;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .overline {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #00ff88;
+    margin-bottom: 16px;
   }
 
   .section-title {
-    font-size: 32px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(32px, 5vw, 44px);
     font-weight: 700;
-    text-align: center;
-    margin-bottom: 8px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
   }
 
-  .section-subtitle {
-    text-align: center;
-    color: var(--text-muted);
-    margin-bottom: 40px;
+  .section-desc {
+    font-size: 17px;
+    color: #666;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .terminal-wrapper {
+    position: relative;
+  }
+
+  .terminal-glow {
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #00ff88 0%, #00d4ff 50%, #8b5cf6 100%);
+    border-radius: 18px;
+    opacity: 0.15;
+    filter: blur(20px);
+    z-index: 0;
   }
 
   .terminal {
-    background: #1e1e1e;
-    border-radius: 12px;
+    position: relative;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--border);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 25px 80px -20px rgba(0, 0, 0, 0.8);
+    z-index: 1;
   }
 
   .terminal-header {
-    background: #323232;
-    padding: 12px 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    padding: 14px 18px;
+    background: #161616;
+    border-bottom: 1px solid #1a1a1a;
   }
 
-  .terminal-buttons {
+  .terminal-dots {
     display: flex;
     gap: 8px;
   }
 
-  .terminal-buttons span {
+  .dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
   }
 
-  .btn-close { background: #ff5f56; }
-  .btn-min { background: #ffbd2e; }
-  .btn-max { background: #27ca40; }
+  .dot.red { background: #ff5f56; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green { background: #27c93f; }
 
   .terminal-title {
-    color: #888;
-    font-size: 13px;
     flex: 1;
     text-align: center;
-    margin-right: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #444;
+  }
+
+  .terminal-actions {
+    min-width: 80px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .reset-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #222;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    background: #00ff88;
+    color: #000;
   }
 
   .terminal-body {
-    padding: 20px;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
-    min-height: 350px;
+    min-height: 380px;
   }
 
   .command-line {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 20px;
   }
 
   .prompt {
-    color: var(--accent-green);
+    color: #00ff88;
+    font-weight: 600;
   }
 
   .command {
-    color: var(--text);
+    color: #fff;
   }
 
   .cursor {
-    color: var(--accent);
-    animation: blink 1s infinite;
+    display: inline-block;
+    width: 10px;
+    height: 20px;
+    background: #00ff88;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
   }
 
   @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   .output {
@@ -258,26 +407,67 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .header {
-    background: var(--accent);
-    color: white;
-    padding: 4px 12px;
-    display: inline-block;
-    font-weight: bold;
-    margin-bottom: 16px;
+  .header-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .logo {
+    background: linear-gradient(135deg, #00ff88, #00d4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+  }
+
+  .version {
+    font-size: 11px;
+    color: #444;
+    padding: 2px 8px;
+    background: #1a1a1a;
+    border-radius: 4px;
   }
 
   .breadcrumb {
-    color: var(--text-muted);
-    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
   }
 
-  .breadcrumb strong {
-    color: var(--text);
+  .crumb {
+    background: none;
+    border: none;
+    color: #555;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+
+  .crumb:hover {
+    color: #00ff88;
+  }
+
+  .crumb.active {
+    color: #fff;
+    cursor: default;
+  }
+
+  .crumb-sep {
+    color: #333;
   }
 
   .menu {
@@ -286,51 +476,105 @@
     gap: 4px;
   }
 
+  .menu-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #444;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
   .menu-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 12px;
+    padding: 12px 14px;
     background: transparent;
-    border: none;
-    color: var(--text);
-    font-family: inherit;
-    font-size: inherit;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: #ccc;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
     cursor: pointer;
     text-align: left;
-    border-radius: 6px;
-    transition: background 0.15s;
+    transition: all 0.15s;
+    animation: slideIn 0.3s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   .menu-item:hover {
-    background: rgba(59, 130, 246, 0.15);
+    background: rgba(0, 255, 136, 0.05);
+    border-color: rgba(0, 255, 136, 0.15);
   }
 
-  .menu-item .arrow {
-    color: var(--accent);
-    width: 16px;
+  .item-icon {
+    color: #00ff88;
+    display: flex;
+    opacity: 0.8;
   }
 
-  .menu-item .name {
-    font-weight: 600;
+  .item-icon.sub {
+    color: #00d4ff;
   }
 
-  .menu-item .count {
-    color: var(--text-muted);
+  .item-icon.note-icon {
+    color: #fbbf24;
+  }
+
+  .item-name {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .item-count {
     font-size: 12px;
+    color: #444;
+    background: #1a1a1a;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .item-ext {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #444;
+  }
+
+  .item-arrow {
+    color: #333;
+    display: flex;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .menu-item:hover .item-arrow {
+    transform: translateX(4px);
+    color: #00ff88;
   }
 
   .menu-item.new {
-    color: var(--accent-green);
+    color: #00ff88;
+    border-style: dashed;
+    border-color: rgba(0, 255, 136, 0.2);
   }
 
-  .menu-item.new .plus {
-    color: var(--accent-green);
-    width: 16px;
+  .menu-item.new:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: rgba(0, 255, 136, 0.3);
   }
 
   .menu-item.back {
-    color: var(--text-muted);
+    color: #666;
+  }
+
+  .menu-item.back:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .menu-item.note {
@@ -339,29 +583,52 @@
 
   .separator {
     height: 1px;
-    background: var(--border);
-    margin: 8px 0;
+    background: #1a1a1a;
+    margin: 12px 0;
   }
 
-  .hint {
-    margin-top: 20px;
+  .terminal-footer {
+    padding: 12px 18px;
+    background: #111;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  .footer-hint {
     display: flex;
+    align-items: center;
     justify-content: center;
-  }
-
-  .reset-btn {
-    background: var(--border);
-    border: none;
-    color: var(--text-muted);
-    padding: 8px 16px;
-    border-radius: 6px;
+    gap: 16px;
     font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
+    color: #444;
   }
 
-  .reset-btn:hover {
-    background: var(--accent);
-    color: white;
+  kbd {
+    background: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #555;
+    margin-right: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .demo {
+      padding: 80px 24px;
+    }
+
+    .terminal-body {
+      padding: 16px;
+      min-height: 320px;
+    }
+
+    .menu-item {
+      padding: 10px 12px;
+    }
+
+    .footer-hint {
+      display: none;
+    }
   }
 </style>
