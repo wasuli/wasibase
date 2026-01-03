@@ -1,22 +1,54 @@
 <script>
+  import { onMount } from 'svelte';
+
+  let visible = false;
+
   const services = [
-    { name: 'Proton Drive', icon: '🔒', color: '#8b5cf6', desc: 'End-to-end encrypted' },
-    { name: 'Dropbox', icon: '📦', color: '#00d4ff', desc: 'Widely used' },
-    { name: 'iCloud', icon: '☁️', color: '#f472b6', desc: 'Apple ecosystem' },
-    { name: 'Google Drive', icon: '🔷', color: '#fbbf24', desc: 'Google integration' }
+    { name: 'Proton Drive', icon: '🔒', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)', desc: 'End-to-end encrypted' },
+    { name: 'Dropbox', icon: '📦', gradient: 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)', desc: 'Widely used' },
+    { name: 'iCloud', icon: '☁️', gradient: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', desc: 'Apple ecosystem' },
+    { name: 'Google Drive', icon: '🔷', gradient: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', desc: 'Google integration' }
   ];
+
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          visible = true;
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.querySelector('.cloud-sync');
+    if (section) observer.observe(section);
+
+    return () => observer.disconnect();
+  });
 </script>
 
 <section class="cloud-sync" id="sync">
+  <div class="bg-glow"></div>
+  <div class="bg-glow-2"></div>
+
   <div class="container">
-    <div class="content-wrapper">
+    <div class="content-wrapper" class:visible>
       <div class="text-content">
-        <span class="overline">Cloud Backup</span>
+        <span class="overline">
+          <span class="overline-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+            </svg>
+          </span>
+          Cloud Backup
+        </span>
         <h2 class="section-title">
-          Your notes,<br/>everywhere
+          Your notes,<br/>
+          <span class="gradient-text">everywhere</span>
         </h2>
         <p class="section-desc">
-          Wasibase auto-detects your cloud storage. One command syncs everything.
+          Wasibase auto-detects your cloud storage. One command syncs everything securely.
         </p>
 
         <div class="sync-steps">
@@ -37,8 +69,10 @@
 
       <div class="services-grid">
         {#each services as service, i}
-          <div class="service-card" style="--accent: {service.color}; animation-delay: {i * 0.1}s">
-            <div class="service-icon">{service.icon}</div>
+          <div class="service-card glass-card" style="--gradient: {service.gradient}; animation-delay: {i * 0.1}s">
+            <div class="service-icon-wrap">
+              <span class="service-icon">{service.icon}</span>
+            </div>
             <div class="service-info">
               <span class="service-name">{service.name}</span>
               <span class="service-desc">{service.desc}</span>
@@ -53,12 +87,11 @@
       </div>
     </div>
 
-    <div class="info-banner">
+    <div class="info-banner glass-card" class:visible>
       <div class="info-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="16" x2="12" y2="12"/>
-          <line x1="12" y1="8" x2="12.01" y2="8"/>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
         </svg>
       </div>
       <div class="info-text">
@@ -71,21 +104,29 @@
 
 <style>
   .cloud-sync {
-    padding: 120px 24px;
-    background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+    padding: 140px 24px;
     position: relative;
     overflow: hidden;
   }
 
-  .cloud-sync::before {
-    content: '';
+  .bg-glow {
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 800px;
-    height: 400px;
+    height: 500px;
     background: radial-gradient(ellipse, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .bg-glow-2 {
+    position: absolute;
+    bottom: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
     pointer-events: none;
   }
 
@@ -102,6 +143,14 @@
     gap: 60px;
     align-items: center;
     margin-bottom: 60px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .content-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .text-content {
@@ -109,27 +158,44 @@
   }
 
   .overline {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #8b5cf6;
-    margin-bottom: 16px;
+    letter-spacing: 0.15em;
+    color: var(--purple);
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 100px;
+  }
+
+  .overline-icon {
+    display: flex;
   }
 
   .section-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(32px, 5vw, 44px);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--text);
     margin-bottom: 20px;
   }
 
+  .gradient-text {
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
   .section-desc {
-    font-size: 17px;
-    color: #666;
+    font-size: 18px;
+    color: var(--text-secondary);
     line-height: 1.7;
     margin-bottom: 36px;
   }
@@ -147,31 +213,32 @@
   }
 
   .sync-num {
-    width: 28px;
-    height: 28px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    color: #666;
+    color: var(--purple);
   }
 
   .sync-text {
     font-size: 15px;
-    color: #888;
+    color: var(--text-secondary);
   }
 
   .sync-text code {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    color: #00ff88;
-    background: rgba(0, 255, 136, 0.1);
-    padding: 2px 8px;
-    border-radius: 4px;
+    color: var(--accent-light);
+    background: rgba(59, 130, 246, 0.15);
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
   }
 
   .services-grid {
@@ -181,9 +248,6 @@
   }
 
   .service-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-    border: 1px solid #1a1a1a;
-    border-radius: 16px;
     padding: 20px;
     display: flex;
     align-items: center;
@@ -198,13 +262,24 @@
   }
 
   .service-card:hover {
-    border-color: var(--accent);
     transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
     box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.5);
   }
 
+  .service-icon-wrap {
+    width: 44px;
+    height: 44px;
+    background: var(--gradient);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
   .service-icon {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .service-info {
@@ -222,26 +297,33 @@
 
   .service-desc {
     font-size: 12px;
-    color: #555;
+    color: var(--text-muted);
   }
 
   .service-check {
-    color: var(--accent);
-    opacity: 0.7;
+    color: #10b981;
+    opacity: 0.8;
   }
 
   .info-banner {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 24px;
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid rgba(0, 255, 136, 0.15);
-    border-radius: 16px;
+    padding: 24px 28px;
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.15);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+  }
+
+  .info-banner.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .info-icon {
-    color: #00ff88;
+    color: #10b981;
     flex-shrink: 0;
     margin-top: 2px;
   }
@@ -249,18 +331,18 @@
   .info-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
 
   .info-text strong {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     color: #fff;
   }
 
   .info-text span {
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary);
     line-height: 1.6;
   }
 
@@ -287,7 +369,7 @@
 
   @media (max-width: 500px) {
     .cloud-sync {
-      padding: 80px 24px;
+      padding: 100px 20px;
     }
 
     .services-grid {

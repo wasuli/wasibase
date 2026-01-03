@@ -1,4 +1,5 @@
 <script>
+  import Nav from './lib/Nav.svelte';
   import Hero from './lib/Hero.svelte';
   import Features from './lib/Features.svelte';
   import Demo from './lib/Demo.svelte';
@@ -7,6 +8,7 @@
   import Footer from './lib/Footer.svelte';
 </script>
 
+<Nav />
 <main>
   <Hero />
   <Features />
@@ -17,7 +19,7 @@
 </main>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   :global(*) {
     margin: 0;
@@ -30,36 +32,88 @@
   }
 
   :global(body) {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0a0a0a;
-    color: #e5e5e5;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #050510;
+    color: #e2e8f0;
     line-height: 1.6;
     overflow-x: hidden;
   }
 
   :global(:root) {
-    --bg: #0a0a0a;
-    --bg-card: #0f0f0f;
-    --bg-elevated: #141414;
-    --border: #1a1a1a;
-    --border-hover: #333;
-    --text: #e5e5e5;
-    --text-muted: #666;
-    --accent: #00ff88;
-    --accent-dim: rgba(0, 255, 136, 0.1);
-    --accent-blue: #00d4ff;
-    --accent-purple: #8b5cf6;
-    --accent-amber: #fbbf24;
-    --accent-pink: #f472b6;
-    --accent-orange: #fb923c;
+    /* Dark blue base */
+    --bg: #050510;
+    --bg-card: rgba(15, 23, 42, 0.6);
+    --bg-elevated: rgba(30, 41, 59, 0.5);
+
+    /* Glassmorphism */
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.06);
+
+    /* Borders */
+    --border: rgba(148, 163, 184, 0.1);
+    --border-hover: rgba(148, 163, 184, 0.2);
+
+    /* Text */
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    /* Blue accent palette */
+    --accent: #3b82f6;
+    --accent-light: #60a5fa;
+    --accent-dark: #2563eb;
+    --accent-glow: rgba(59, 130, 246, 0.4);
+
+    /* Secondary accents */
+    --cyan: #06b6d4;
+    --purple: #8b5cf6;
+    --emerald: #10b981;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    --gradient-glow: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
   }
 
   :global(::selection) {
-    background: rgba(0, 255, 136, 0.3);
+    background: rgba(59, 130, 246, 0.3);
     color: #fff;
+  }
+
+  :global(::-webkit-scrollbar) {
+    width: 8px;
+  }
+
+  :global(::-webkit-scrollbar-track) {
+    background: var(--bg);
+  }
+
+  :global(::-webkit-scrollbar-thumb) {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  :global(::-webkit-scrollbar-thumb:hover) {
+    background: var(--border-hover);
   }
 
   main {
     min-height: 100vh;
+    position: relative;
+  }
+
+  /* Global glass card utility */
+  :global(.glass-card) {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+  }
+
+  :global(.glass-card:hover) {
+    background: var(--glass-hover);
+    border-color: var(--border-hover);
   }
 </style>

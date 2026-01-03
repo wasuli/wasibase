@@ -1,5 +1,8 @@
 <script>
+  import { onMount } from 'svelte';
+
   let copied = {};
+  let visible = false;
 
   const commands = [
     { cmd: 'wasibase', desc: 'Open main menu & manage categories' },
@@ -15,17 +18,47 @@
     copied[key] = true;
     setTimeout(() => copied[key] = false, 2000);
   }
+
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          visible = true;
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.querySelector('.installation');
+    if (section) observer.observe(section);
+
+    return () => observer.disconnect();
+  });
 </script>
 
 <section class="installation" id="install">
+  <div class="bg-glow"></div>
+
   <div class="container">
-    <div class="section-header">
-      <span class="overline">Quick Start</span>
-      <h2 class="section-title">Up and running in seconds</h2>
+    <div class="section-header" class:visible>
+      <span class="overline">
+        <span class="overline-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </span>
+        Quick Start
+      </span>
+      <h2 class="section-title">
+        Up and running in <span class="gradient-text">seconds</span>
+      </h2>
     </div>
 
-    <div class="install-steps">
-      <div class="step">
+    <div class="install-steps" class:visible>
+      <div class="step glass-card">
         <div class="step-badge">
           <span class="step-number">1</span>
         </div>
@@ -46,7 +79,7 @@
 
       <div class="step-connector"></div>
 
-      <div class="step">
+      <div class="step glass-card">
         <div class="step-badge">
           <span class="step-number">2</span>
         </div>
@@ -73,7 +106,7 @@
 
       <div class="step-connector"></div>
 
-      <div class="step">
+      <div class="step glass-card">
         <div class="step-badge done">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"/>
@@ -101,11 +134,11 @@
       </div>
     </div>
 
-    <div class="commands-section">
+    <div class="commands-section" class:visible>
       <h3 class="commands-title">All Commands</h3>
       <div class="commands-grid">
         {#each commands as { cmd, desc }, i}
-          <div class="command-card" style="animation-delay: {i * 0.05}s">
+          <div class="command-card glass-card" style="animation-delay: {i * 0.05}s">
             <div class="command-main">
               <code class="command-code">{cmd}</code>
               <button class="copy-mini" on:click={() => copyCommand(cmd, cmd)}>
@@ -131,36 +164,74 @@
 
 <style>
   .installation {
-    padding: 120px 24px;
+    padding: 140px 24px;
     position: relative;
+    overflow: hidden;
+  }
+
+  .bg-glow {
+    position: absolute;
+    top: 20%;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .container {
     max-width: 900px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .section-header {
     text-align: center;
     margin-bottom: 70px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .section-header.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .overline {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #00ff88;
-    margin-bottom: 16px;
+    letter-spacing: 0.15em;
+    color: var(--accent-light);
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 100px;
+  }
+
+  .overline-icon {
+    display: flex;
   }
 
   .section-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(32px, 5vw, 44px);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .install-steps {
@@ -169,6 +240,14 @@
     align-items: center;
     gap: 0;
     margin-bottom: 80px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+  }
+
+  .install-steps.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .step {
@@ -176,36 +255,38 @@
     gap: 24px;
     max-width: 500px;
     width: 100%;
+    padding: 24px;
   }
 
   .step-badge {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+    background: var(--gradient-primary);
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 8px 24px -8px rgba(59, 130, 246, 0.4);
   }
 
   .step-badge.done {
-    background: linear-gradient(135deg, #00ff88 0%, #10b981 100%);
-    color: #000;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px -8px rgba(16, 185, 129, 0.4);
   }
 
   .step-number {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 20px;
     font-weight: 700;
-    color: #000;
+    color: #fff;
   }
 
   .step-connector {
     width: 2px;
     height: 40px;
-    background: linear-gradient(180deg, #00ff88 0%, rgba(0, 255, 136, 0.2) 100%);
-    margin-left: 23px;
+    background: linear-gradient(180deg, var(--accent) 0%, rgba(59, 130, 246, 0.2) 100%);
+    margin-left: calc(50% - 1px);
   }
 
   .step-content {
@@ -213,16 +294,15 @@
   }
 
   .step-content h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
     margin-bottom: 6px;
   }
 
   .step-content p {
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 14px;
   }
 
@@ -231,10 +311,10 @@
     align-items: center;
     gap: 8px;
     padding: 10px 18px;
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.2);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 10px;
-    color: #00ff88;
+    color: var(--accent-light);
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
@@ -242,8 +322,8 @@
   }
 
   .node-link:hover {
-    background: rgba(0, 255, 136, 0.15);
-    border-color: rgba(0, 255, 136, 0.4);
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
     transform: translateY(-2px);
   }
 
@@ -252,24 +332,25 @@
     align-items: center;
     gap: 12px;
     padding: 14px 18px;
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
+    background: rgba(10, 15, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
+    backdrop-filter: blur(10px);
   }
 
   .code-box code {
     flex: 1;
     font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
-    color: #00ff88;
+    color: var(--accent-light);
   }
 
   .copy-btn {
-    background: #1a1a1a;
-    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
     padding: 8px;
-    color: #666;
+    color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -278,19 +359,27 @@
   }
 
   .copy-btn:hover {
-    background: #00ff88;
-    color: #000;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
   }
 
   .commands-section {
-    padding-top: 40px;
-    border-top: 1px solid #1a1a1a;
+    padding-top: 60px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+  }
+
+  .commands-section.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .commands-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
     text-align: center;
     margin-bottom: 32px;
     color: #fff;
@@ -299,15 +388,12 @@
   .commands-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 16px;
   }
 
   .command-card {
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
-    border-radius: 12px;
-    padding: 16px 18px;
-    transition: all 0.2s;
+    padding: 20px;
+    transition: all 0.3s;
     animation: fadeInUp 0.4s ease both;
   }
 
@@ -317,15 +403,15 @@
   }
 
   .command-card:hover {
-    border-color: #333;
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 
   .command-main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .command-code {
@@ -339,24 +425,24 @@
     background: transparent;
     border: none;
     padding: 4px;
-    color: #444;
+    color: var(--text-muted);
     cursor: pointer;
     transition: color 0.2s;
     display: flex;
   }
 
   .copy-mini:hover {
-    color: #00ff88;
+    color: var(--accent-light);
   }
 
   .command-desc {
     font-size: 13px;
-    color: #555;
+    color: var(--text-secondary);
   }
 
   @media (max-width: 640px) {
     .installation {
-      padding: 80px 24px;
+      padding: 100px 20px;
     }
 
     .step {

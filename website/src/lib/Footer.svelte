@@ -3,10 +3,14 @@
 </script>
 
 <footer>
+  <div class="footer-glow"></div>
   <div class="container">
     <div class="footer-content">
       <div class="brand">
-        <span class="logo">WASIBASE</span>
+        <div class="logo-wrap">
+          <span class="logo-icon">🧠</span>
+          <span class="logo">wasibase</span>
+        </div>
         <p class="tagline">Your Second Brain in the Terminal</p>
       </div>
 
@@ -37,14 +41,28 @@
 
 <style>
   footer {
-    padding: 60px 24px 40px;
-    border-top: 1px solid #1a1a1a;
-    background: #0a0a0a;
+    padding: 80px 24px 48px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-glow {
+    position: absolute;
+    bottom: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .container {
     max-width: 1100px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .footer-content {
@@ -57,15 +75,25 @@
   .brand {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
   }
 
   .logo {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    background: linear-gradient(135deg, #00ff88, #00d4ff);
+    letter-spacing: -0.02em;
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -73,27 +101,34 @@
 
   .tagline {
     font-size: 14px;
-    color: #555;
+    color: var(--text-muted);
   }
 
   .links {
     display: flex;
-    gap: 24px;
+    gap: 16px;
   }
 
   .link {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
-    transition: color 0.2s;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.2s;
   }
 
   .link:hover {
-    color: #00ff88;
+    color: #fff;
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
   }
 
   .footer-bottom {
@@ -101,39 +136,53 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 24px;
-    border-top: 1px solid #1a1a1a;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .copyright {
     font-size: 14px;
-    color: #555;
+    color: var(--text-muted);
   }
 
   .copyright a {
-    color: #888;
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color 0.2s;
   }
 
   .copyright a:hover {
-    color: #00ff88;
+    color: var(--accent-light);
   }
 
   .heart {
     color: #f472b6;
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
 
   .license {
     font-size: 13px;
-    color: #444;
+    color: var(--text-muted);
   }
 
   @media (max-width: 600px) {
+    footer {
+      padding: 60px 20px 40px;
+    }
+
     .footer-content {
       flex-direction: column;
       align-items: center;
       text-align: center;
       gap: 32px;
+    }
+
+    .brand {
+      align-items: center;
     }
 
     .footer-bottom {

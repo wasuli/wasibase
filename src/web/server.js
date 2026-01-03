@@ -1091,9 +1091,11 @@ Backlinks zu anderen Notes:
     });
 
     // Heartbeat - send current state to server every 5 seconds for emergency saves
-    setInterval(() => {
-      if (themaInput.value.trim() || editor.value) {
-        fetch('/heartbeat', {
+    // Also checks if server is still alive - closes window if not
+    let serverCheckFailures = 0;
+    setInterval(async () => {
+      try {
+        const res = await fetch('/heartbeat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1102,9 +1104,22 @@ Backlinks zu anderen Notes:
             thema: themaInput.value.trim(),
             content: editor.value
           })
-        }).catch(() => {});
+        });
+        if (res.ok) {
+          serverCheckFailures = 0;
+        } else {
+          serverCheckFailures++;
+        }
+      } catch (e) {
+        serverCheckFailures++;
+        if (serverCheckFailures >= 2) {
+          // Server is gone, close the window
+          window.close();
+          // Fallback: show message if window.close() doesn't work
+          document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;flex-direction:column;background:#0a0a0a;color:#666;font-family:system-ui;"><h2 style="color:#fff;margin-bottom:16px;">Server beendet</h2><p>Du kannst dieses Fenster schliessen.</p></div>';
+        }
       }
-    }, 5000);
+    }, 3000);
 
     // Theme Toggle
     function toggleTheme() {
@@ -1821,10 +1836,12 @@ function getEditHTML(oberkategorie, unterkategorie, thema, content) {
       }
     });
 
-    // Heartbeat - send current state to server every 5 seconds
-    setInterval(() => {
-      if (themaInput.value.trim() || editor.value) {
-        fetch('/heartbeat', {
+    // Heartbeat - send current state to server every 3 seconds
+    // Also checks if server is still alive - closes window if not
+    let serverCheckFailures = 0;
+    setInterval(async () => {
+      try {
+        const res = await fetch('/heartbeat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1833,9 +1850,22 @@ function getEditHTML(oberkategorie, unterkategorie, thema, content) {
             thema: themaInput.value.trim(),
             content: editor.value
           })
-        }).catch(() => {});
+        });
+        if (res.ok) {
+          serverCheckFailures = 0;
+        } else {
+          serverCheckFailures++;
+        }
+      } catch (e) {
+        serverCheckFailures++;
+        if (serverCheckFailures >= 2) {
+          // Server is gone, close the window
+          window.close();
+          // Fallback: show message if window.close() doesn't work
+          document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;flex-direction:column;background:#0a0a0a;color:#666;font-family:system-ui;"><h2 style="color:#fff;margin-bottom:16px;">Server beendet</h2><p>Du kannst dieses Fenster schliessen.</p></div>';
+        }
       }
-    }, 5000);
+    }, 3000);
 
     function toggleTheme() {
       const html = document.documentElement;
