@@ -1,7 +1,7 @@
 {
   "name": "wasibase",
   "version": "1.0.0",
-  "description": "Second Brain - Terminal-basiertes Notizen-System mit Backlinks",
+  "description": "Second Brain - Terminal-basiertes Notizen-System mit Backlinks und Graph-Visualisierung",
   "main": "src/index.js",
   "type": "module",
   "bin": {
@@ -20,10 +20,27 @@
     "second-brain",
     "backlinks",
     "markdown",
-    "cli"
+    "cli",
+    "terminal",
+    "knowledge-base",
+    "zettelkasten",
+    "note-taking",
+    "graph"
   ],
   "author": "Wasili",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasuli/wasibase.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wasuli/wasibase/issues"
+  },
+  "homepage": "https://wasuli.github.io/wasibase",
+  "files": [
+    "bin",
+    "src"
+  ],
   "dependencies": {
     "chalk": "^5.6.2",
     "express": "^5.2.1",

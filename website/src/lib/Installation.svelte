@@ -7,21 +7,9 @@
       link: { url: 'https://nodejs.org', text: 'nodejs.org' }
     },
     {
-      title: 'Wasibase herunterladen',
-      desc: 'Lade die ZIP-Datei herunter und entpacke sie in einen Ordner deiner Wahl.',
-      code: 'cd ~/Downloads/wasibase-main',
-      link: null
-    },
-    {
-      title: 'Dependencies installieren',
-      desc: 'Oeffne das Terminal im wasibase Ordner und fuehre aus:',
-      code: 'npm install',
-      link: null
-    },
-    {
-      title: 'Global verfuegbar machen',
-      desc: 'Damit du "wasibase" ueberall nutzen kannst:',
-      code: 'npm link',
+      title: 'Wasibase installieren',
+      desc: 'Oeffne das Terminal und installiere wasibase global:',
+      code: 'npm install -g wasibase',
       link: null
     },
     {

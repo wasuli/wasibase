@@ -1,6 +1,14 @@
 <script>
   const githubUrl = 'https://github.com/wasuli/wasibase';
-  const downloadUrl = `${githubUrl}/archive/refs/heads/main.zip`;
+  const npmUrl = 'https://www.npmjs.com/package/wasibase';
+
+  let copied = false;
+
+  async function copyCommand() {
+    await navigator.clipboard.writeText('npm install -g wasibase');
+    copied = true;
+    setTimeout(() => copied = false, 2000);
+  }
 </script>
 
 <section class="hero">
@@ -8,14 +16,28 @@
     <h1 class="logo">Wasibase</h1>
     <p class="tagline">Dein Second Brain. Terminal-basiert. Mit Backlinks.</p>
 
+    <div class="install-box">
+      <code class="install-command">npm install -g wasibase</code>
+      <button class="copy-btn" on:click={copyCommand}>
+        {#if copied}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        {:else}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        {/if}
+      </button>
+    </div>
+
     <div class="hero-buttons">
-      <a href={downloadUrl} class="btn btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
+      <a href={npmUrl} class="btn btn-primary" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/>
         </svg>
-        Download ZIP
+        npm Package
       </a>
       <a href={githubUrl} class="btn btn-secondary" target="_blank" rel="noopener">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -53,7 +75,43 @@
   .tagline {
     font-size: 22px;
     color: var(--text-muted);
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+  }
+
+  .install-box {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    gap: 16px;
+  }
+
+  .install-command {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 18px;
+    color: var(--accent-green);
+    user-select: all;
+  }
+
+  .copy-btn {
+    background: var(--border);
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-btn:hover {
+    background: var(--accent);
+    color: white;
   }
 
   .hero-buttons {
@@ -78,14 +136,14 @@
   }
 
   .btn-primary {
-    background: var(--accent);
+    background: #cb3837;
     color: white;
   }
 
   .btn-primary:hover {
-    background: var(--accent-hover);
+    background: #b52e2d;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 20px rgba(203, 56, 55, 0.3);
   }
 
   .btn-secondary {
@@ -110,6 +168,16 @@
 
     .tagline {
       font-size: 18px;
+    }
+
+    .install-box {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .install-command {
+      font-size: 15px;
     }
 
     .btn {
