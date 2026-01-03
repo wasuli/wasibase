@@ -1,0 +1,29 @@
+{
+  "name": "wasibase",
+  "version": "1.0.0",
+  "description": "Second Brain - Notizen mit Backlinks",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "wasibase": "./bin/wasibase.js"
+  },
+  "scripts": {
+    "start": "node bin/wasibase.js"
+  },
+  "keywords": [
+    "notes",
+    "second-brain",
+    "backlinks"
+  ],
+  "author": "Wasili",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "express": "^5.2.1",
+    "inquirer": "^9.3.8",
+    "js-yaml": "^4.1.1",
+    "marked": "^17.0.1",
+    "open": "^11.0.0",
+    "ora": "^8.2.0"
+  }
+}
