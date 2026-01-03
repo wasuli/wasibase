@@ -140,3 +140,90 @@ export function searchNotes(query) {
 
   return results;
 }
+
+// Backup Functions
+export function createBackup() {
+  const backup = {
+    version: 1,
+    created: new Date().toISOString(),
+    notes: []
+  };
+
+  const oberkategorien = getOberkategorien();
+
+  for (const ober of oberkategorien) {
+    const unterkategorien = getUnterkategorien(ober);
+    for (const unter of unterkategorien) {
+      const notes = getNotes(ober, unter);
+      for (const note of notes) {
+        const content = readNote(ober, unter, note);
+        backup.notes.push({
+          oberkategorie: ober,
+          unterkategorie: unter,
+          thema: note,
+          content: content || ''
+        });
+      }
+    }
+  }
+
+  return backup;
+}
+
+export function saveBackupToFile(filePath) {
+  const backup = createBackup();
+  const dir = path.dirname(filePath);
+  ensureDir(dir);
+  fs.writeFileSync(filePath, JSON.stringify(backup, null, 2));
+  return backup.notes.length;
+}
+
+export function restoreFromBackup(backupData) {
+  let restored = 0;
+  for (const note of backupData.notes) {
+    saveNote(note.oberkategorie, note.unterkategorie, note.thema, note.content);
+    restored++;
+  }
+  return restored;
+}
+
+export function loadBackupFromFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content);
+}
+
+// Config Functions
+export function loadConfig() {
+  if (!fs.existsSync(CONFIG.configFile)) {
+    return {};
+  }
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG.configFile, 'utf-8'));
+  } catch {
+    return {};
+  }
+}
+
+export function saveConfig(config) {
+  ensureDir(CONFIG.baseDir);
+  fs.writeFileSync(CONFIG.configFile, JSON.stringify(config, null, 2));
+}
+
+export function getSyncPath() {
+  const config = loadConfig();
+  return config.syncPath || null;
+}
+
+export function setSyncPath(syncPath) {
+  const config = loadConfig();
+  config.syncPath = syncPath;
+  saveConfig(config);
+}
+
+export function syncToPath(syncPath) {
+  const backupFile = path.join(syncPath, 'wasibase-backup.json');
+  return saveBackupToFile(backupFile);
+}
