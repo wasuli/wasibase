@@ -23,7 +23,7 @@
 
 <nav class:scrolled>
   <div class="nav-container">
-    <a href="/" class="logo">
+    <a href="/wasibase/" class="logo" on:click|preventDefault={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); closeMobile(); }}>
       <div class="logo-mark">
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="16" cy="16" r="14" stroke="url(#logo-grad)" stroke-width="2" fill="none"/>

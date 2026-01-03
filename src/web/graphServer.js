@@ -156,201 +156,246 @@ function getGraphHTML() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wasibase Graph</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://d3js.org/d3.v7.min.js"><\/script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"><\/script>
   <style>
     :root {
-      --bg-dark: #0f0f0f;
-      --bg-card: #1a1a1a;
-      --border: #2a2a2a;
-      --text: #e5e5e5;
-      --text-muted: #888;
-      --accent-blue: #3b82f6;
-      --accent-green: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-purple: #8b5cf6;
+      --bg: #030308;
+      --bg-card: rgba(12, 12, 20, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #22d3ee;
+      --accent-secondary: #a855f7;
+      --accent-tertiary: #3b82f6;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --gradient-primary: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
     }
-    
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-dark);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
       color: var(--text);
       height: 100vh;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    
+
     /* Header */
     header {
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 56px;
-      background: rgba(15, 15, 15, 0.8);
-      backdrop-filter: blur(20px);
+      height: 64px;
+      background: rgba(3, 3, 8, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      padding: 0 24px;
+      padding: 0 28px;
       z-index: 100;
     }
-    
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.4));
+    }
+
     .logo {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
     }
-    
+
     .stats {
       margin-left: 24px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-size: 13px;
-      color: var(--text-muted);
+      font-weight: 500;
+      color: var(--text-secondary);
     }
-    
+
     .header-actions {
       margin-left: auto;
       display: flex;
       gap: 12px;
     }
-    
+
     .btn {
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s ease;
     }
-    
+
     .btn:hover {
-      background: var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border-hover);
       color: var(--text);
     }
-    
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      border: none;
+      color: #000;
+      box-shadow: 0 0 20px -4px rgba(34, 211, 238, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 28px -4px rgba(34, 211, 238, 0.6);
+      transform: translateY(-1px);
+    }
+
     /* Graph */
     #graph {
       width: 100%;
       height: 100%;
       cursor: grab;
     }
-    
+
     #graph:active { cursor: grabbing; }
-    
+
     /* Nodes */
-    .node { cursor: pointer; }
-    
+    .node { cursor: pointer; transition: transform 0.2s ease; }
+
     .node-ober rect {
-      fill: var(--accent-blue);
-      filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+      fill: url(#grad-cyan);
+      filter: drop-shadow(0 4px 20px rgba(34, 211, 238, 0.35));
     }
-    
+
     .node-unter rect {
-      fill: var(--accent-green);
-      filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+      fill: url(#grad-emerald);
+      filter: drop-shadow(0 4px 20px rgba(16, 185, 129, 0.35));
     }
-    
+
     .node-note circle {
-      fill: var(--accent-amber);
-      filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
-      transition: all 0.2s;
+      fill: url(#grad-amber);
+      filter: drop-shadow(0 4px 16px rgba(245, 158, 11, 0.35));
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     .node-note:hover circle {
-      transform: scale(1.15);
-      filter: drop-shadow(0 6px 20px rgba(245, 158, 11, 0.5));
+      filter: drop-shadow(0 8px 28px rgba(245, 158, 11, 0.5));
     }
-    
+
     .node text {
       pointer-events: none;
       user-select: none;
       font-weight: 500;
     }
-    
+
     .node-label {
       fill: var(--text);
       font-size: 12px;
     }
-    
+
     /* Links */
     .link-hierarchy {
-      stroke: var(--border);
+      stroke: rgba(255, 255, 255, 0.12);
       stroke-width: 2;
-      stroke-dasharray: 6, 4;
-      opacity: 0.6;
+      stroke-dasharray: 8, 6;
+      opacity: 0.7;
     }
-    
+
     .link-backlink {
-      stroke: var(--accent-purple);
-      stroke-width: 2.5;
-      opacity: 0.8;
+      stroke: url(#grad-link);
+      stroke-width: 3;
+      opacity: 0.85;
     }
-    
+
     /* Legend */
     .legend {
       position: fixed;
       bottom: 24px;
       left: 24px;
       background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      min-width: 180px;
+      border-radius: 16px;
+      padding: 20px 24px;
+      min-width: 200px;
     }
-    
+
     .legend-title {
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
-    
+
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 8px 0;
+      gap: 14px;
+      margin: 10px 0;
       font-size: 13px;
-      color: var(--text);
+      font-weight: 500;
+      color: var(--text-secondary);
     }
-    
+
     .legend-shape {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    
+
     .legend-rect {
-      width: 18px;
-      height: 12px;
-      border-radius: 3px;
-    }
-    
-    .legend-circle {
-      width: 14px;
+      width: 20px;
       height: 14px;
+      border-radius: 4px;
+    }
+
+    .legend-circle {
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
     }
-    
+
     .legend-line {
-      width: 20px;
+      width: 24px;
       height: 3px;
       border-radius: 2px;
     }
-    
+
     .legend-line-dashed {
-      background: repeating-linear-gradient(90deg, var(--border), var(--border) 4px, transparent 4px, transparent 8px);
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) 5px, transparent 5px, transparent 9px);
     }
-    
+
     /* Controls */
     .controls {
       position: fixed;
@@ -358,151 +403,206 @@ function getGraphHTML() {
       right: 24px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
-    
+
     .control-btn {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text-muted);
+      border-radius: 14px;
+      color: var(--text-secondary);
       font-size: 20px;
+      font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: all 0.25s ease;
     }
-    
+
     .control-btn:hover {
-      background: var(--border);
-      color: var(--text);
+      background: rgba(34, 211, 238, 0.1);
+      border-color: rgba(34, 211, 238, 0.3);
+      color: var(--accent);
+      transform: scale(1.05);
     }
-    
+
     /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
+      background: rgba(3, 3, 8, 0.9);
+      backdrop-filter: blur(8px);
       z-index: 200;
       justify-content: center;
       align-items: center;
       padding: 40px;
     }
-    
+
     .modal-overlay.show { display: flex; }
-    
+
     .modal {
       background: var(--bg-card);
+      backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      max-width: 720px;
-      max-height: 80vh;
+      border-radius: 20px;
+      max-width: 760px;
+      max-height: 85vh;
       width: 100%;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), 0 0 80px -20px rgba(34, 211, 238, 0.15);
     }
-    
+
     .modal-header {
-      padding: 20px 24px;
+      padding: 24px 28px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: flex-start;
-      gap: 16px;
+      gap: 18px;
     }
-    
+
     .modal-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--accent-amber), #ea580c);
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--amber), #ea580c);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px -8px rgba(245, 158, 11, 0.4);
+    }
+
+    .modal-info { flex: 1; }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-path {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
+      transition: all 0.2s;
     }
-    
-    .modal-info { flex: 1; }
-    
-    .modal-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    
-    .modal-path {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    
-    .modal-close {
-      width: 32px;
-      height: 32px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
+
     .modal-close:hover {
-      background: var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border-hover);
       color: var(--text);
     }
-    
+
     .modal-content {
-      padding: 24px;
+      padding: 28px;
       overflow-y: auto;
-      line-height: 1.7;
+      line-height: 1.75;
     }
-    
-    .modal-content h1 { font-size: 1.6em; margin-bottom: 16px; color: var(--text); }
-    .modal-content h2 { font-size: 1.3em; margin: 24px 0 12px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .modal-content h3 { font-size: 1.1em; margin: 20px 0 8px; color: var(--text); }
-    .modal-content p { margin-bottom: 14px; color: #b0b0b0; }
-    .modal-content strong { color: var(--text); }
-    .modal-content code { background: #252525; padding: 2px 8px; border-radius: 6px; color: #f472b6; font-size: 13px; }
-    .modal-content pre { background: #252525; padding: 16px; border-radius: 10px; overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); }
+
+    .modal-content h1 { font-size: 1.7em; margin-bottom: 18px; color: var(--text); font-weight: 700; letter-spacing: -0.02em; }
+    .modal-content h2 { font-size: 1.35em; margin: 28px 0 14px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px; font-weight: 600; }
+    .modal-content h3 { font-size: 1.15em; margin: 22px 0 10px; color: var(--text); font-weight: 600; }
+    .modal-content p { margin-bottom: 16px; color: var(--text-secondary); }
+    .modal-content strong { color: var(--text); font-weight: 600; }
+    .modal-content code { background: rgba(34, 211, 238, 0.1); padding: 3px 10px; border-radius: 8px; color: var(--accent); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+    .modal-content pre { background: rgba(0, 0, 0, 0.3); padding: 18px 20px; border-radius: 14px; overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); }
     .modal-content pre code { background: none; padding: 0; color: var(--text); }
-    .modal-content ul, .modal-content ol { margin: 14px 0; padding-left: 24px; color: #b0b0b0; }
-    .modal-content blockquote { border-left: 3px solid var(--accent-purple); padding-left: 16px; color: var(--text-muted); margin: 14px 0; }
+    .modal-content ul, .modal-content ol { margin: 16px 0; padding-left: 26px; color: var(--text-secondary); }
+    .modal-content li { margin: 8px 0; }
+    .modal-content blockquote { border-left: 3px solid var(--accent-secondary); padding-left: 18px; color: var(--text-muted); margin: 16px 0; font-style: italic; }
+    .modal-content a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .modal-content a:hover { border-bottom-color: var(--accent); }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">Wasibase Graph</div>
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" stroke="url(#header-grad)" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="16" r="4" fill="url(#header-grad)"/>
+          <circle cx="8" cy="10" r="2.5" fill="url(#header-grad)" opacity="0.8"/>
+          <circle cx="24" cy="10" r="2.5" fill="url(#header-grad)" opacity="0.8"/>
+          <circle cx="8" cy="22" r="2.5" fill="url(#header-grad)" opacity="0.8"/>
+          <circle cx="24" cy="22" r="2.5" fill="url(#header-grad)" opacity="0.8"/>
+          <line x1="12.5" y1="14" x2="9.5" y2="11.5" stroke="url(#header-grad)" stroke-width="1.5" opacity="0.6"/>
+          <line x1="19.5" y1="14" x2="22.5" y2="11.5" stroke="url(#header-grad)" stroke-width="1.5" opacity="0.6"/>
+          <line x1="12.5" y1="18" x2="9.5" y2="20.5" stroke="url(#header-grad)" stroke-width="1.5" opacity="0.6"/>
+          <line x1="19.5" y1="18" x2="22.5" y2="20.5" stroke="url(#header-grad)" stroke-width="1.5" opacity="0.6"/>
+          <defs>
+            <linearGradient id="header-grad" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0%" stop-color="#22d3ee"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="logo">Wasibase</span>
+    </div>
     <div class="stats" id="stats">Lade...</div>
     <div class="header-actions">
       <button class="btn" onclick="closeGraph()">Schliessen</button>
     </div>
   </header>
-  
-  <svg id="graph"></svg>
+
+  <svg id="graph">
+    <defs>
+      <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#22d3ee"/>
+        <stop offset="100%" stop-color="#0891b2"/>
+      </linearGradient>
+      <linearGradient id="grad-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10b981"/>
+        <stop offset="100%" stop-color="#059669"/>
+      </linearGradient>
+      <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f59e0b"/>
+        <stop offset="100%" stop-color="#d97706"/>
+      </linearGradient>
+      <linearGradient id="grad-link" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#22d3ee"/>
+        <stop offset="100%" stop-color="#a855f7"/>
+      </linearGradient>
+    </defs>
+  </svg>
   
   <div class="legend">
     <div class="legend-title">Legende</div>
     <div class="legend-item">
-      <div class="legend-shape"><div class="legend-rect" style="background: var(--accent-blue);"></div></div>
+      <div class="legend-shape"><div class="legend-rect" style="background: var(--accent);"></div></div>
       <span>Oberkategorie</span>
     </div>
     <div class="legend-item">
-      <div class="legend-shape"><div class="legend-rect" style="background: var(--accent-green);"></div></div>
+      <div class="legend-shape"><div class="legend-rect" style="background: var(--emerald);"></div></div>
       <span>Unterkategorie</span>
     </div>
     <div class="legend-item">
-      <div class="legend-shape"><div class="legend-circle" style="background: var(--accent-amber);"></div></div>
+      <div class="legend-shape"><div class="legend-circle" style="background: var(--amber);"></div></div>
       <span>Note</span>
     </div>
     <div class="legend-item">
@@ -510,7 +610,7 @@ function getGraphHTML() {
       <span>Struktur</span>
     </div>
     <div class="legend-item">
-      <div class="legend-shape"><div class="legend-line" style="background: var(--accent-purple);"></div></div>
+      <div class="legend-shape"><div class="legend-line" style="background: var(--gradient-primary);"></div></div>
       <span>Backlink</span>
     </div>
   </div>
