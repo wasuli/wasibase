@@ -151,7 +151,7 @@ export function startGraphServer(config, callback) {
 
 function getGraphHTML() {
   return `<!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -160,7 +160,8 @@ function getGraphHTML() {
   <script src="https://d3js.org/d3.v7.min.js"><\/script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"><\/script>
   <style>
-    :root {
+    /* Dark Theme (default) */
+    :root, [data-theme="dark"] {
       --bg: #030308;
       --bg-card: rgba(12, 12, 20, 0.9);
       --border: rgba(255, 255, 255, 0.08);
@@ -174,6 +175,27 @@ function getGraphHTML() {
       --emerald: #10b981;
       --amber: #f59e0b;
       --gradient-primary: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+      --node-label: #ccc;
+      --link-hierarchy: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Light Theme */
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-card: rgba(255, 255, 255, 0.95);
+      --border: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(0, 0, 0, 0.15);
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent: #0891b2;
+      --accent-secondary: #9333ea;
+      --accent-tertiary: #2563eb;
+      --emerald: #059669;
+      --amber: #d97706;
+      --gradient-primary: linear-gradient(135deg, #0891b2 0%, #9333ea 100%);
+      --node-label: #334155;
+      --link-hierarchy: rgba(0, 0, 0, 0.15);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -276,6 +298,23 @@ function getGraphHTML() {
       transform: translateY(-1px);
     }
 
+    .theme-toggle {
+      width: 44px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-icon-dark, .theme-icon-light {
+      font-size: 18px;
+    }
+
+    [data-theme="dark"] .theme-icon-light { display: none; }
+    [data-theme="dark"] .theme-icon-dark { display: inline; }
+    [data-theme="light"] .theme-icon-dark { display: none; }
+    [data-theme="light"] .theme-icon-light { display: inline; }
+
     /* Graph */
     #graph {
       width: 100%;
@@ -321,7 +360,7 @@ function getGraphHTML() {
 
     /* Links */
     .link-hierarchy {
-      stroke: rgba(255, 255, 255, 0.12);
+      stroke: var(--link-hierarchy);
       stroke-width: 2;
       stroke-dasharray: 8, 6;
       opacity: 0.7;
@@ -566,6 +605,10 @@ function getGraphHTML() {
     </div>
     <div class="stats" id="stats">Lade...</div>
     <div class="header-actions">
+      <button class="btn theme-toggle" onclick="toggleTheme()" title="Theme wechseln">
+        <span class="theme-icon-dark">&#9790;</span>
+        <span class="theme-icon-light">&#9728;</span>
+      </button>
       <button class="btn" onclick="closeGraph()">Schliessen</button>
     </div>
   </header>
@@ -639,6 +682,30 @@ function getGraphHTML() {
     let simulation, svg, g, zoom;
     let nodes = [], links = [];
 
+    // Theme Management
+    function initTheme() {
+      const saved = localStorage.getItem('wasibase-graph-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('wasibase-graph-theme', next);
+      updateNodeColors();
+    }
+
+    function updateNodeColors() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      const labelColor = theme === 'dark' ? '#ccc' : '#334155';
+      d3.selectAll('.node-note text').attr('fill', labelColor);
+    }
+
+    initTheme();
+
     const CONFIG = {
       nodeSize: {
         ober: { width: 140, height: 44, radius: 10 },
@@ -677,18 +744,20 @@ function getGraphHTML() {
     function createGraph() {
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const headerHeight = 64;
+      const centerY = headerHeight + (height - headerHeight) / 2;
 
       svg = d3.select('#graph').attr('width', width).attr('height', height);
-      
+
       // Zoom setup
       zoom = d3.zoom()
         .scaleExtent([0.2, 3])
         .on('zoom', (event) => g.attr('transform', event.transform));
       svg.call(zoom);
-      
+
       g = svg.append('g');
 
-      // Force simulation
+      // Force simulation - zentriert unter dem Header
       simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links)
           .id(d => d.id)
@@ -698,12 +767,12 @@ function getGraphHTML() {
         .force('charge', d3.forceManyBody()
           .strength(d => CONFIG.force.charge[d.type.replace('kategorie', '')] || -400)
         )
-        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('center', d3.forceCenter(width / 2, centerY))
         .force('collision', d3.forceCollide()
           .radius(d => CONFIG.force.collision[d.type.replace('kategorie', '')] || 50)
         )
         .force('x', d3.forceX(width / 2).strength(0.03))
-        .force('y', d3.forceY(height / 2).strength(0.03));
+        .force('y', d3.forceY(centerY).strength(0.03));
 
       // Draw links
       const link = g.append('g')
@@ -789,8 +858,8 @@ function getGraphHTML() {
         node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
       });
 
-      // Initial zoom to fit
-      setTimeout(fitToScreen, 1200);
+      // Initial zoom to fit - schneller und mit Header-Offset
+      setTimeout(fitToScreen, 600);
     }
 
     function truncate(str, len) {
@@ -801,12 +870,17 @@ function getGraphHTML() {
       const bounds = g.node().getBBox();
       const width = window.innerWidth;
       const height = window.innerHeight;
-      const scale = 0.85 / Math.max(bounds.width / width, bounds.height / height);
+      const headerHeight = 64;
+      const availableHeight = height - headerHeight;
+
+      // Bessere Skalierung für sofortige Sichtbarkeit
+      const scale = 0.8 / Math.max(bounds.width / width, bounds.height / availableHeight);
       const tx = width / 2 - scale * (bounds.x + bounds.width / 2);
-      const ty = height / 2 - scale * (bounds.y + bounds.height / 2);
-      svg.transition().duration(750).call(
-        zoom.transform, 
-        d3.zoomIdentity.translate(tx, ty).scale(Math.min(scale, 1.2))
+      const ty = headerHeight + availableHeight / 2 - scale * (bounds.y + bounds.height / 2);
+
+      svg.transition().duration(500).call(
+        zoom.transform,
+        d3.zoomIdentity.translate(tx, ty).scale(Math.min(Math.max(scale, 0.4), 1.5))
       );
     }
 
@@ -883,10 +957,12 @@ function getGraphHTML() {
     window.addEventListener('resize', () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const headerHeight = 64;
+      const centerY = headerHeight + (height - headerHeight) / 2;
       svg.attr('width', width).attr('height', height);
-      simulation.force('center', d3.forceCenter(width / 2, height / 2));
+      simulation.force('center', d3.forceCenter(width / 2, centerY));
       simulation.force('x', d3.forceX(width / 2).strength(0.03));
-      simulation.force('y', d3.forceY(height / 2).strength(0.03));
+      simulation.force('y', d3.forceY(centerY).strength(0.03));
       simulation.alpha(0.3).restart();
     });
 
